@@ -36,8 +36,11 @@ def get_json(json_file, api, email_address):
     jsonResponse = r.json()
     with open(json_file, 'w') as outfile:
         json.dump(jsonResponse, outfile)
-        
-    
+
+#get_json('fpl_data.json','https://draft.premierleague.com/api/league/38996/details','james2395@btinternet.com')
+
+
+
 # Function to convert the json file into 3 respective dataframes
 def get_dataframes(json_file):
     """
@@ -56,6 +59,8 @@ def get_dataframes(json_file):
     
     return league_entry_df, matches_df, standings_df
 
+
+league_entry_df, matches_df, standings_df = get_dataframes('fpl_data.json')
 
 def get_points_over_time(matches_df, league_entry_df):
     # Filter to played matches
@@ -77,7 +82,7 @@ def get_points_over_time(matches_df, league_entry_df):
 
     # Drop unused columns, rename for clearer columns
     matches_df = (matches_df
-                 .drop(['finished', 'started', 'id_x', 'id_y', 'winning_league_entry', 'winning_method', 'league_entry_1', 'league_entry_2'], axis=1)
+                 .drop(['finished', 'started', 'id_x', 'id_y', 'league_entry_1', 'league_entry_2'], axis=1)
                 .rename(columns={'event':'match',
                            'player_first_name_x': 'home_player',
                            'league_entry_1_points': 'home_score',
@@ -151,6 +156,10 @@ def get_points_over_time(matches_df, league_entry_df):
     return output_df, matches_df_stacked, pivot_df
 
 
+
+#output_df, matches_df_stacked, pivot_df = get_points_over_time(matches_df, league_entry_df)
+
+
 def get_streaks(matches_df_stacked):
     
     df = matches_df_stacked
@@ -158,8 +167,10 @@ def get_streaks(matches_df_stacked):
     def win_lose_bin(df):
         if df['points'] == 3:
             df['binary'] = 1
-        else:
+        elif df['points'] == 1:
             df['binary'] = 0
+        elif df['points']==0:
+            df['binary'] = -1
             
         return df
     
@@ -179,3 +190,4 @@ def get_streaks(matches_df_stacked):
     df = teams_grpd.apply(get_team_streaks)
     
     return df
+
