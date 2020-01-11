@@ -37,8 +37,6 @@ def get_json(json_file, api, email_address):
     with open(json_file, 'w') as outfile:
         json.dump(jsonResponse, outfile)
 
-#get_json('fpl_data.json','https://draft.premierleague.com/api/league/38996/details','james2395@btinternet.com')
-
 
 
 # Function to convert the json file into 3 respective dataframes
@@ -60,7 +58,6 @@ def get_dataframes(json_file):
     return league_entry_df, matches_df, standings_df
 
 
-league_entry_df, matches_df, standings_df = get_dataframes('fpl_data.json')
 
 def get_points_over_time(matches_df, league_entry_df):
     # Filter to played matches
@@ -157,7 +154,6 @@ def get_points_over_time(matches_df, league_entry_df):
 
 
 
-#output_df, matches_df_stacked, pivot_df = get_points_over_time(matches_df, league_entry_df)
 
 
 def get_streaks(matches_df_stacked):
