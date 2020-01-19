@@ -4,6 +4,7 @@ import json
 import pandas as pd
 from pandas.io.json import json_normalize
 import matplotlib.pyplot as plt
+import datetime
 
 
 def get_json(json_file, api, email_address):
@@ -36,8 +37,9 @@ def get_json(json_file, api, email_address):
     jsonResponse = r.json()
     with open(json_file, 'w') as outfile:
         json.dump(jsonResponse, outfile)
-        
-    
+
+
+
 # Function to convert the json file into 3 respective dataframes
 def get_dataframes(json_file):
     """
@@ -55,6 +57,7 @@ def get_dataframes(json_file):
         standings_df = json_normalize(d['standings'])
     
     return league_entry_df, matches_df, standings_df
+
 
 
 def get_points_over_time(matches_df, league_entry_df):
@@ -77,7 +80,7 @@ def get_points_over_time(matches_df, league_entry_df):
 
     # Drop unused columns, rename for clearer columns
     matches_df = (matches_df
-                 .drop(['finished', 'started', 'id_x', 'id_y', 'winning_league_entry', 'winning_method', 'league_entry_1', 'league_entry_2'], axis=1)
+                 .drop(['finished', 'started', 'id_x', 'id_y', 'league_entry_1', 'league_entry_2'], axis=1)
                 .rename(columns={'event':'match',
                            'player_first_name_x': 'home_player',
                            'league_entry_1_points': 'home_score',
@@ -151,6 +154,9 @@ def get_points_over_time(matches_df, league_entry_df):
     return output_df, matches_df_stacked, pivot_df
 
 
+
+
+
 def get_streaks(matches_df_stacked):
     
     df = matches_df_stacked
@@ -158,8 +164,10 @@ def get_streaks(matches_df_stacked):
     def win_lose_bin(df):
         if df['points'] == 3:
             df['binary'] = 1
-        else:
+        elif df['points'] == 1:
             df['binary'] = 0
+        elif df['points']==0:
+            df['binary'] = -1
             
         return df
     
@@ -179,3 +187,17 @@ def get_streaks(matches_df_stacked):
     df = teams_grpd.apply(get_team_streaks)
     
     return df
+
+
+def get_num_gameweeks():
+    
+    start_date = datetime.date(2019,8,16)
+    
+    with open('details.json') as json_data:
+        d = json.load(json_data)
+        matches_df = json_normalize(d['matches'])
+        
+    num_gameweeks = matches_df[matches_df['started'] == True]['event'].max()
+    
+    return num_gameweeks
+    
