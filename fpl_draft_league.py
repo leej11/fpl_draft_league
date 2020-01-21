@@ -193,7 +193,7 @@ def get_num_gameweeks():
     
     start_date = datetime.date(2019,8,16)
     
-    with open('details.json') as json_data:
+    with open('../data/details.json') as json_data:
         d = json.load(json_data)
         matches_df = json_normalize(d['matches'])
         
