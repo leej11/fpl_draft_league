@@ -2,26 +2,23 @@
 ---
 This is a hobby project to produce fun data and charts related to the [fantasy premier league (FPL) draft game](https://draft.premierleague.com/).
 
+
+
 ## Repository Structure
+A brief overview of how the repository is structured.
 
-#### /data
-Any data related to the FPL Draft League will be stored here. This is typically json responses from various api calls made to the FPL website.
+### /data
+Any data related to the FPL Draft League will be stored here. This is typically json responses from various api calls made to the FPL website. 
 
-#### /feature_name
-For now, I think a nice structure is to have a sub-folder for each feature. For example:
+### /fpl_draft_league
+This is the package containing the package modules e.g.
 
-* /transactions
-* /head2head
-* /league_details
+* `fpl_draft_league.py`
+* `head2head`
+* `league_details`
 
-Within these folders, a nice structure is to have a sub-module paired with a demo jupyter notebook.
-
-For example:
-
-* /transactions
-    * transactions.py
-    * transactions.ipynb
-
+### /notebooks
+This is for storing example notebooks for illustrating functionality of the package.
 
 ## Useful Links / Reading
 

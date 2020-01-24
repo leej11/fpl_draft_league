@@ -2,7 +2,7 @@ import getpass
 import requests
 import json
 
-def get_json(json_file, api, email_address):
+def get_json(email_address):
     """
     Pulls fpl draft league data using an api call, and stores the output
     in a json file at the specified location.
@@ -14,6 +14,13 @@ def get_json(json_file, api, email_address):
     :param email_address: Your email address to authenticate with premierleague.com
     :returns: 
     """
+    json_files = ['../data/transactions.json',
+         '../data/elements.json',
+         '../data/details.json']
+    
+    apis = ['https://draft.premierleague.com/api/draft/league/38996/transactions',
+       'https://draft.premierleague.com/api/bootstrap-static',
+       'https://draft.premierleague.com/api/league/38996/details']
     
     # Post credentials for authentication
     pwd = getpass.getpass('Enter Password: ')
@@ -28,7 +35,7 @@ def get_json(json_file, api, email_address):
     session.post(url, data=payload)
     
     # Loop over the api(s), call them and capture the response(s)
-    for file, i in zip(json_file, api):
+    for file, i in zip(json_files, apis):
         r = session.get(i)
         jsonResponse = r.json()
         with open(file, 'w') as outfile:
