@@ -1,6 +1,9 @@
 import getpass
 import requests
 import json
+from pandas.io.json import json_normalize
+import re
+
 
 def get_json(email_address):
     """
@@ -16,11 +19,14 @@ def get_json(email_address):
     """
     json_files = ['../data/transactions.json',
          '../data/elements.json',
-         '../data/details.json']
+         '../data/details.json',
+         '../data/element_status.json'
+                 ]
     
     apis = ['https://draft.premierleague.com/api/draft/league/38996/transactions',
        'https://draft.premierleague.com/api/bootstrap-static',
-       'https://draft.premierleague.com/api/league/38996/details']
+       'https://draft.premierleague.com/api/league/38996/details',
+       'https://draft.premierleague.com/api/league/38996/element-status']
     
     # Post credentials for authentication
     pwd = getpass.getpass('Enter Password: ')
@@ -40,3 +46,47 @@ def get_json(email_address):
         jsonResponse = r.json()
         with open(file, 'w') as outfile:
             json.dump(jsonResponse, outfile)
+            
+
+def get_dataframes(json_file):
+    """
+    Converts a specified json file of fpl draft league data and converts
+    into pandas dataframe(s).
+    
+    :param json_file: The json file which contains the fpl draft league data
+    :returns: pandas dataframe(s) of the data
+    """
+
+    if re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'details.json':
+
+        with open(json_file) as json_data:
+            d = json.load(json_data)
+            league_entry_df = json_normalize(d['league_entries'])
+            matches_df = json_normalize(d['matches'])
+            standings_df = json_normalize(d['standings'])
+
+        return league_entry_df, matches_df, standings_df
+
+    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'elements.json':
+
+        with open(json_file) as json_data:
+            d = json.load(json_data)
+            elements_df = json_normalize(d['elements'])
+
+        return elements_df
+
+    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'transactions.json':
+
+        with open(json_file) as json_data:
+            d = json.load(json_data)
+            transactions_df = json_normalize(d['transactions'])
+
+        return transactions_df
+
+    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'elements_status.json':
+
+        with open(json_file) as json_data:
+            d = json.load(json_data)
+            element_status_df = json_normalize(d['element_status'])
+
+        return element_status_df
