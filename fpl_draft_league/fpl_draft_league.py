@@ -8,58 +8,6 @@ import datetime
 import numpy as np
 
 
-def get_json(json_file, api, email_address):
-    """
-    Pulls fpl draft league data using an api call, and stores the output
-    in a json file at the specified location.
-    
-    To get the FPL Draft api call, I followed advice on [Reddit here](https://www.reddit.com/r/FantasyPL/comments/9rclpj/python_for_fantasy_football_using_the_fpl_api/e8g6ur4?utm_source=share&utm_medium=web2x) which basically said you can derive the API calls by using Chrome's developer window under network you can see the "fetches" that are made, and the example response data. Very cool!
-    
-    :param file_path: The file path and name of the json file you wish to create
-    :param api: The api call for your fpl draft league
-    :param email_address: Your email address to authenticate with premierleague.com
-    :returns: 
-    """
-    
-    # Post credentials for authentication
-    pwd = getpass.getpass('Enter Password: ')
-    session = requests.session()
-    url = 'https://users.premierleague.com/accounts/login/'
-    payload = {
-     'password': pwd,
-     'login': email_address,
-     'redirect_uri': 'https://fantasy.premierleague.com/a/login',
-     'app': 'plfpl-web'
-    }
-    session.post(url, data=payload)
-    
-    # Call the api and capture the response
-    r = session.get(api)
-    jsonResponse = r.json()
-    with open(json_file, 'w') as outfile:
-        json.dump(jsonResponse, outfile)
-
-
-
-# Function to convert the json file into 3 respective dataframes
-def get_dataframes(json_file):
-    """
-    Converts a json file of fpl draft league data and converts
-    into 3 respective dataframes for league entries, matches and current standings.
-    
-    :param json_file: The json file which contains the fpl draft league data#
-    :returns: league entries dataframe, matches dataframe and current standings dataframe
-    """
-    
-    with open(json_file) as json_data:
-        d = json.load(json_data)
-        league_entry_df = json_normalize(d['league_entries'])
-        matches_df = json_normalize(d['matches'])
-        standings_df = json_normalize(d['standings'])
-    
-    return league_entry_df, matches_df, standings_df
-
-
 
 def get_points_over_time(matches_df, league_entry_df):
     # Filter to played matches
