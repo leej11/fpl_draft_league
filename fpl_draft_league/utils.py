@@ -1,4 +1,4 @@
-import getpass
+bimport getpass
 import requests
 import json
 from pandas.io.json import json_normalize
@@ -83,7 +83,7 @@ def get_dataframes(json_file):
 
         return transactions_df
 
-    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'elements_status.json':
+    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'element_status.json':
 
         with open(json_file) as json_data:
             d = json.load(json_data)
