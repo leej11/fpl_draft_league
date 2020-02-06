@@ -1,7 +1,8 @@
-bimport getpass
+import getpass
 import requests
 import json
 from pandas.io.json import json_normalize
+import pandas as pd
 import re
 
 
@@ -72,8 +73,9 @@ def get_dataframes(json_file):
         with open(json_file) as json_data:
             d = json.load(json_data)
             elements_df = json_normalize(d['elements'])
+            element_types_df = json_normalize(d['element_types'])
 
-        return elements_df
+        return elements_df, element_types_df
 
     elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'transactions.json':
 
@@ -90,3 +92,62 @@ def get_dataframes(json_file):
             element_status_df = json_normalize(d['element_status'])
 
         return element_status_df
+    
+def get_team_players_data():
+    
+    # Pull the required dataframes
+    element_status_df = get_dataframes('../data/element_status.json')
+    elements_df, element_types_df = get_dataframes('../data/elements.json')
+    league_entry_df, matches_df, standings_df = get_dataframes('../data/details.json')
+    
+    # Built the initial player -> team dataframe
+    players_df = (pd.merge(element_status_df,
+                           league_entry_df,
+                           left_on='owner',
+                           right_on='entry_id'
+                        )
+              .drop(columns=['in_accepted_trade',
+                            'owner',
+                            'status',
+                            'entry_id',
+                            'entry_name',
+                            'id',
+                            'joined_time',
+                            'player_last_name',
+                            'short_name',
+                            'waiver_pick'])
+              .rename(columns={'player_first_name':'team'})
+             )
+    
+    # Get the element details
+    players_df = pd.merge(players_df, elements_df, left_on='element', right_on='id')
+    players_df = players_df[['team_x',
+                             'element',
+                             'web_name',
+                             'total_points',
+                             'goals_scored',
+                             'goals_conceded',
+                             'clean_sheets',
+                             'assists',
+                             'bonus',
+                             'draft_rank',
+                             'element_type',
+                             'points_per_game',
+                             'red_cards',
+                             'yellow_cards'
+                            ]]
+    
+    # Get the player types (GK, FWD etc.)
+    players_df = (pd.merge(players_df,
+                         element_types_df,
+                         how='left',
+                         left_on='element_type',
+                         right_on='id')
+                 .drop(columns=['id',
+                                'plural_name_short',
+                                'singular_name',
+                                'singular_name_short'])
+                )
+
+    return players_df
+
