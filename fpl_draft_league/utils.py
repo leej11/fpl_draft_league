@@ -49,51 +49,63 @@ def get_json(email_address):
             json.dump(jsonResponse, outfile)
             
 
-def get_dataframes(json_file):
-    """
-    Converts a specified json file of fpl draft league data and converts
-    into pandas dataframe(s).
+def get_data(df_name):
     
-    :param json_file: The json file which contains the fpl draft league data
-    :returns: pandas dataframe(s) of the data
-    """
-
-    if re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'details.json':
-
-        with open(json_file) as json_data:
+    # Dataframes from the details.json
+    if df_name == 'league_entries':
+        with open('../data/details.json') as json_data:
             d = json.load(json_data)
             league_entry_df = json_normalize(d['league_entries'])
+            
+        return league_entry_df
+    
+    elif df_name == 'matches':
+        with open('../data/details.json') as json_data:
+            d = json.load(json_data)
             matches_df = json_normalize(d['matches'])
+            
+        return matches_df
+    
+    elif df_name == 'standings':
+        with open('../data/details.json') as json_data:
+            d = json.load(json_data)
             standings_df = json_normalize(d['standings'])
-
-        return league_entry_df, matches_df, standings_df
-
-    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'elements.json':
-
-        with open(json_file) as json_data:
+            
+        return standings_df
+    
+    # Dataframes from the elements.json
+    elif df_name == 'elements':
+        with open('../data/elements.json') as json_data:
             d = json.load(json_data)
             elements_df = json_normalize(d['elements'])
+            
+        return league_entry_df
+    
+    elif df_name == 'element_types':
+        with open('../data/elements.json') as json_data:
+            d = json.load(json_data)
             element_types_df = json_normalize(d['element_types'])
-
-        return elements_df, element_types_df
-
-    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'transactions.json':
-
-        with open(json_file) as json_data:
+            
+        return element_types_df
+    
+    # Dataframes from the transactions.json
+    elif df_name == 'transactions':
+        with open('../data/transactions.json') as json_data:
             d = json.load(json_data)
             transactions_df = json_normalize(d['transactions'])
-
+            
         return transactions_df
-
-    elif re.search(r'(?!.*\/)(.*.json)', json_file).group(1) == 'element_status.json':
-
-        with open(json_file) as json_data:
+    
+    # Dataframes from the element_status.json
+    elif df_name == 'element_status':
+        with open('../data/element_status.json') as json_data:
             d = json.load(json_data)
             element_status_df = json_normalize(d['element_status'])
-
+            
         return element_status_df
     
-def get_team_players_data():
+    
+def get_team_players_agg_data():
     
     # Pull the required dataframes
     element_status_df = get_dataframes('../data/element_status.json')
@@ -151,3 +163,17 @@ def get_team_players_data():
 
     return players_df
 
+
+def get_team_players_gw_data():
+    
+    df = get_team_players_agg_data()
+    elements_to_pull = df['element']
+    players_dict = {}
+    
+    for element in elements_to_pull:
+        with open(f'../data/elements/{element}.json') as json_data:
+            d = json.load(json_data)
+            players_dict[element] = json_normalize(d['history'])
+            players_df = pd.concat(players_dict, ignore_index=True)
+            
+    return players_df
