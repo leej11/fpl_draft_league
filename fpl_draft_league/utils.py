@@ -79,7 +79,7 @@ def get_data(df_name):
             d = json.load(json_data)
             elements_df = json_normalize(d['elements'])
             
-        return league_entry_df
+        return elements_df
     
     elif df_name == 'element_types':
         with open('../data/elements.json') as json_data:
@@ -108,9 +108,12 @@ def get_data(df_name):
 def get_team_players_agg_data():
     
     # Pull the required dataframes
-    element_status_df = get_dataframes('../data/element_status.json')
-    elements_df, element_types_df = get_dataframes('../data/elements.json')
-    league_entry_df, matches_df, standings_df = get_dataframes('../data/details.json')
+    element_status_df = get_data('element_status')
+    elements_df = get_data('elements')
+    element_types_df = get_data('element_types')
+    league_entry_df = get_data('league_entries')
+    matches_df = get_data('matches')
+    standings_df = get_data('standings')
     
     # Built the initial player -> team dataframe
     players_df = (pd.merge(element_status_df,
@@ -177,3 +180,11 @@ def get_team_players_gw_data():
             players_df = pd.concat(players_dict, ignore_index=True)
             
     return players_df
+
+
+def get_num_gameweeks():
+    
+    matches_df = get_data('matches')       
+    num_gameweeks = matches_df[matches_df['finished'] == True]['event'].max()
+    
+    return num_gameweeks

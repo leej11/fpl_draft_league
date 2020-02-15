@@ -11,6 +11,8 @@ import numpy as np
 
 def get_points_over_time(matches_df, league_entry_df):
     # Filter to played matches
+    utils
+    
     matches_df = matches_df[matches_df['finished'] == True]
 
     # Join to get team names and player names of entry 1 (home team)
@@ -241,15 +243,5 @@ def get_streaks(matches_df_stacked):
     return df
 
 
-def get_num_gameweeks():
-    
-    start_date = datetime.date(2019,8,16)
-    
-    with open('../data/details.json') as json_data:
-        d = json.load(json_data)
-        matches_df = json_normalize(d['matches'])
-        
-    num_gameweeks = matches_df[matches_df['started'] == True]['event'].max()
-    
-    return num_gameweeks
+
     
