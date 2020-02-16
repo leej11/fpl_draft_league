@@ -1,6 +1,8 @@
 import fpl_draft_league.utils as utils
+import fpl_draft_league.fpl_draft_league as fpl
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 def chart_league_standings_history():
     
@@ -91,7 +93,169 @@ def chart_league_standings_history():
 
     plt.legend(loc=0)
 
-    plt.show()
+    
+    plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/standings.png")
+    #plt.show()
+
+    
+def chart_top_n_players(n=10):
+    
+    #### Pull in the needed data ####
+    # Element status and filter to owned players only
+    element_status_df = utils.get_data('element_status')
+    element_status_df = element_status_df[element_status_df['status'] == 'o']
+    element_status_df = element_status_df[['element', 'owner']]
+    
+    # League entries
+    le_df = utils.get_data('league_entries')
+    le_df = le_df[['player_first_name', 'entry_id']]
+    
+    # Join owner players with league entries (cleaning)
+    owner_df = pd.merge(element_status_df, le_df, how='left', left_on='owner', right_on='entry_id')
+    owner_df = owner_df.drop(columns=['owner', 'entry_id'])
+    
+    # Get the actual element data
+    elements_df = utils.get_data('elements')
+    elements_df = elements_df[['id', 'web_name']]
+    
+    # Intermediate player ownership df, merging owners with element details
+    po_df = pd.merge(owner_df, elements_df, left_on='element', right_on='id')
+    po_df = po_df.drop(columns=['id'])
     
     
-def 
+    # Pull all the teams' players gameweek data
+    df = utils.get_team_players_gw_data()
+    
+    # Limit to just the latest completed gameweek
+    df = df[df['event'] == utils.get_num_gameweeks()]
+   
+    # Build the final players_df in the clean form we want
+    players_df = pd.merge(df,
+              po_df,
+              how='left',
+              left_on='element',
+              right_on='element')
+
+    players_df = players_df[['web_name', 'player_first_name', 'total_points', 'goals_scored', 'goals_conceded', 'assists', 'bonus']]
+    
+    # The final df we need :D filtered to specified top 'n'
+    players_df = players_df.sort_values(by='total_points', ascending=False).head(n)
+    
+    # Get list of league entry players
+    player_list = list(players_df['player_first_name'])
+    
+    # Plot!!
+    colour_dict = {
+        'Thomas': 
+            {
+                'color':'#04f5ff',
+                'hatch':True
+            },
+        'Huw':
+            {
+                'color':'#e90052',
+                'hatch':True
+            },
+        'Benji':
+            {
+                'color':'#00ff85',
+                'hatch':True
+            },
+        'John':
+            {
+                'color':'#38003c',
+                'hatch':True
+            },
+        'Dave':
+            {
+                'color':'#EAFF04',
+                'hatch':True
+            },
+        'James':
+            {
+                'color':'#04f5ff',
+                'hatch':False
+            },
+        'Rebecca':
+            {
+                'color':'#e90052',
+                'hatch':False
+            },
+        'Cory':
+            {
+                'color':'#00ff85',
+                'hatch':False
+            },
+        'Liam':
+            {
+                'color':'#38003c',
+                'hatch':False
+            },
+        'ben':
+            {
+                'color':'#EAFF04',
+                'hatch':False
+            }
+    }
+    
+    plt.figure(figsize=[10,5])
+
+    mybar = plt.bar(range(10),
+            players_df['total_points'],
+            tick_label=players_df['web_name']
+            )
+
+    for i, player in zip(range(10), player_list):
+        mybar[i].set_color(colour_dict[player]['color'])
+        mybar[i].set_label(player)
+
+
+        if colour_dict[player]['hatch'] == True:
+            mybar.patches[i].set_hatch('..')
+            mybar.patches[i].set_edgecolor('white')
+            mybar.patches[i].set_facecolor(colour_dict[player]['color'])
+
+    ax = plt.gca()
+    ax.legend()
+    plt.xticks(rotation=80)
+    
+    plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/topnplayers.png")
+    #plt.show()
+
+
+def chart_current_streaks():
+    
+    league_entry_df = utils.get_data('league_entries')
+    matches_df = utils.get_data('matches')
+    stacked_df = fpl.get_matches_stacked(matches_df, league_entry_df)
+    streaks_df = fpl.get_streaks(stacked_df)
+    
+    final_df = streaks_df[streaks_df['match'] == streaks_df.match.max()].sort_values(by='streak', ascending=False)[['team', 'streak']]
+    final_df = final_df.sort_values(by='streak', ascending=True)
+    
+    # Setup the colours to apply
+    colors = []
+
+    for team in final_df['team']:
+        if final_df[final_df['team'] == team]['streak'].values < 0:
+            colors.append('#e90052')
+
+        elif final_df[final_df['team'] == team]['streak'].values > 0:
+            colors.append('#00ff85')
+    
+    # Build the plot
+    plt.figure()
+    plt.barh(range(10), final_df['streak'], color=colors)
+    ax = plt.gca()
+    
+    ax.set_xlabel('Current Streak Value')
+    ax.set_title('Current Team Streaks')
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    
+    ax.set_yticks(range(10))
+    ax.set_yticklabels(final_df['team'], va='center')
+    
+    plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/streaks.png")
+    #plt.show()
