@@ -12,7 +12,7 @@ receiver_email = "lee.gower17@gmail.com"
 message = """This is a test python email yippee!"""
 
 message = MIMEMultipart("alternative")
-message["Subject"] = "A test email"
+message["Subject"] = "FPL Draft League - GW 26 Newsletter"
 message["From"] = sender_email
 message["To"] = receiver_email
 

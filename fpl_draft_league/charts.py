@@ -239,6 +239,9 @@ def chart_current_streaks():
     for team in final_df['team']:
         if final_df[final_df['team'] == team]['streak'].values < 0:
             colors.append('#e90052')
+                
+        elif final_df[final_df['team'] == team]['streak'].values == 0:
+            colors.append('#04f5ff')
 
         elif final_df[final_df['team'] == team]['streak'].values > 0:
             colors.append('#00ff85')
