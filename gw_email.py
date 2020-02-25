@@ -6,13 +6,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 
 port = 465
-password = os.environ['MY_PASSWORD']
+password = ''
 sender_email = "leejghd@gmail.com"
 receiver_email = "lee.gower17@gmail.com"
 message = """This is a test python email yippee!"""
 
 message = MIMEMultipart("alternative")
-message["Subject"] = "FPL Draft League - GW 26 Newsletter"
+message["Subject"] = "FPL Draft League - GW 27 Newsletter"
 message["From"] = sender_email
 message["To"] = receiver_email
 
@@ -21,7 +21,15 @@ text = """this is just the plain text version"""
 html = html = f"""\
 <html>
   <body>
-    <h1>Welcome to the latest FPL Draft League - Gameweek Update
+    <h1>Welcome to the latest FPL Draft League - Gameweek Update</h1>
+    <br>
+    <p> This week saw Dave knocked off his 6 game win streak by James who now holds the current longest streak of 4. Who can stop him?
+    <br>
+    <p> Not only that, but James owned 3 of the top 10 players this week? Was it luck or is James now a force to be reckoned with? 
+    <br>
+    <p> The top owned players was also interesting this week as 2 goalkeepers breached the top 10, along with 3 Wolves players - John'll be happy.
+    <br>
+    <p> See you next week!
     <br>
     <h2>Standings</h2>
     <p>After the latest gameweek, here are how the standings are evolving:

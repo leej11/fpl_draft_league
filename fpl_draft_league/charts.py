@@ -218,7 +218,16 @@ def chart_top_n_players(n=10):
     ax = plt.gca()
     ax.legend()
     plt.xticks(rotation=80)
+                
+    ax.set_xlabel('Top players')
+    ax.set_ylabel('Points total')
+    ax.set_title('Top 10 owned players')
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
     
+    plt.tight_layout()
+                
     plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/topnplayers.png")
     #plt.show()
 
