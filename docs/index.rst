@@ -1,15 +1,20 @@
-.. FPL Draft League documentation master file, created by
-   sphinx-quickstart on Sun Jun 21 14:44:18 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to FPL Draft League's documentation!
+FPL Draft League documentation!
 ============================================
 
+Another Header
+^^^^^^^^^^^^^^^^
+Here is some text :) about FPL Draft League::
+
+   print("Hello World")
+
+Guide
+^^^^^^
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   licence
+   help
 
 
 Indices and tables
