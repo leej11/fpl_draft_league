@@ -1,0 +1,15 @@
+ca-certificates=2020.1.1
+certifi=2020.4.5.2
+openssl=1.1.1g
+pip=20.1.1
+python=3.7.7
+requests=2.24.0
+setuptools=47.3.0
+wheel=0.34.2
+pandas
+getpass
+requests
+json
+matplotlib
+datetime
+numpy
