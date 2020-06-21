@@ -110,10 +110,8 @@ def get_player_data(email_address, elements):
     Function to pull element gameweek data for a specified list of
     elements.
     
-    :param email_address: The email address to authenticate
-    with the fpl website.
-    :param elements: The list of elements you wish to pull
-    data for.
+    :param email_address: The email address to authenticate with the fpl website.
+    :param elements: The list of elements you wish to pull data for.
     
     :return:
     """
@@ -236,8 +234,7 @@ def get_player_gameweek_data(elements, gameweek):
     """
     Pull gameweek data for a given list of elements/players
     
-    :param elements: The list of elements/players you wish to
-    obtain gameweek data for.
+    :param elements: The list of elements/players you wish to obtain gameweek data for.
     :param gameweek: The gameweek you want the data limited to
     
     :return: Dataframe of gameweek data for each player
