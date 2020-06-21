@@ -1,5 +1,6 @@
 import fpl_draft_league.utils as utils
 import fpl_draft_league.fpl_draft_league as fpl
+import fpl_draft_league.transactions as trxns
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -271,3 +272,133 @@ def chart_current_streaks():
     
     plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/streaks.png")
     #plt.show()
+
+
+def chart_net_xfer_value():
+    
+    trxns_df = trxns.get_transactions_df(28, accepted=True)
+    elements_to_pull = list(trxns_df['player_in_id']) + list(trxns_df['player_out_id'])
+    utils.get_player_data('lee.gower17@gmail.com', elements_to_pull)
+    gw_data_df = utils.get_player_gameweek_data(elements_to_pull, 28)
+                
+    trxns_df = (
+        pd.merge(trxns_df, gw_data_df, left_on='player_in_id', right_on='element')
+        .drop(columns=['element'])
+        .rename(columns={'total_points':'player_in_points'})
+    )
+
+    trxns_df = (
+        pd.merge(trxns_df, gw_data_df, left_on='player_out_id', right_on='element')
+        .drop(columns=['element'])
+        .rename(columns={'total_points':'player_out_points'})
+    )
+                
+    trxns_df = trxns_df[[
+        'team',
+        'event',
+        'kind',
+        # Player details
+        'player_in',
+        'player_in_id',
+        'player_out',
+        'player_out_id',
+        # Player points
+        'player_in_points',
+        'player_out_points',
+        'result'
+    ]]           
+    
+    trxns_df['net_xfer_value'] = trxns_df['player_in_points'] - trxns_df['player_out_points']
+    
+    colour_dict = {
+        'Thomas': 
+            {
+                'color':'#04f5ff',
+                'hatch':True,
+                'hatch_type':'x',
+            },
+        'Huw':
+            {
+                'color':'#e90052',
+                'hatch':True,
+                'hatch_type':'/',
+            },
+        'Benji':
+            {
+                'color':'#00ff85',
+                'hatch':True,
+                'hatch_type':'o',
+            },
+        'John':
+            {
+                'color':'#38003c',
+                'hatch':True,
+                'hatch_type':'.',
+            },
+        'Dave':
+            {
+                'color':'#EAFF04',
+                'hatch':True,
+                'hatch_type':'+',
+            },
+        'James':
+            {
+                'color':'#04f5ff',
+                'hatch':False,
+                'hatch_type':'-',
+            },
+        'Rebecca':
+            {
+                'color':'#e90052',
+                'hatch':False,
+                'hatch_type':'*',
+            },
+        'Cory':
+            {
+                'color':'#00ff85',
+                'hatch':False,
+                'hatch_type':'\\',
+            },
+        'Liam':
+            {
+                'color':'#38003c',
+                'hatch':False,
+                'hatch_type':'OO',
+            },
+        'ben':
+            {
+                'color':'#EAFF04',
+                'hatch':False,
+                'hatch_type':'***',
+            }
+    }
+                
+    plt.figure()
+    my_bar = plt.barh(trxns_df.player_out + ':\n' + trxns_df.player_in, trxns_df['net_xfer_value'])
+
+    for i, team in enumerate(trxns_df['team']):
+        # my_bar[i].set_color(colour_dict[team]['color'])[
+        my_bar[i].set_label(team)
+        my_bar.patches[i].set_hatch(colour_dict[team]['hatch_type'])
+        my_bar.patches[i].set_edgecolor('white')
+
+        if trxns_df.iloc[i]['net_xfer_value'] >= 0:
+
+            my_bar.patches[i].set_facecolor('#00ff85')
+
+        else:
+            my_bar.patches[i].set_facecolor('#e90052')
+
+    plt.axvline(x=0, color='grey')
+
+
+    ax = plt.gca()
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.set_title("Gameweek net transfer value", y=1.08)
+    ax.set_ylabel("Player out : Player in")
+    ax.set_xlabel("Net transfer value")
+
+    plt.legend()
+                
+    plt.savefig(f"{os.environ['HOME']}/Documents/Github/fpl_draft_league/data/transfers.png")

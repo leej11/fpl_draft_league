@@ -6,13 +6,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 
 port = 465
-password = ''
+password = '3l3g4nce'
 sender_email = "leejghd@gmail.com"
 receiver_email = "lee.gower17@gmail.com"
 message = """This is a test python email yippee!"""
 
 message = MIMEMultipart("alternative")
-message["Subject"] = "FPL Draft League - GW 27 Newsletter"
+message["Subject"] = "FPL Draft League - GW 28 Newsletter"
 message["From"] = sender_email
 message["To"] = receiver_email
 
@@ -23,13 +23,6 @@ html = html = f"""\
   <body>
     <h1>Welcome to the latest FPL Draft League - Gameweek Update</h1>
     <br>
-    <p> This week saw Dave knocked off his 6 game win streak by James who now holds the current longest streak of 4. Who can stop him?
-    <br>
-    <p> Not only that, but James owned 3 of the top 10 players this week? Was it luck or is James now a force to be reckoned with? 
-    <br>
-    <p> The top owned players was also interesting this week as 2 goalkeepers breached the top 10, along with 3 Wolves players - John'll be happy.
-    <br>
-    <p> See you next week!
     <br>
     <h2>Standings</h2>
     <p>After the latest gameweek, here are how the standings are evolving:
@@ -45,6 +38,12 @@ html = html = f"""\
     <p>After the latest gameweek, who is on the hot streak now? Who's having a rough patch?
     <br>
     <img src="cid:streaks">
+    <br>
+    <h2>Transfers</h2>
+    <p>New for this week is the <i>Net transfer value chart</i> which shows transfer-out:transfer-in and
+    the net points from that transfer!
+    <br>
+    <img src="cid:transfers">
     <br>
     That's it for this week. Please feedback any ideas you have for charts to add, or things to tweak! You can visit the <a href="https://github.com/leej11/fpl_draft_league">Github repo here</a> to make pull requests or just browse the code!
     </p>
@@ -65,13 +64,18 @@ with open('data/topnplayers.png', 'rb') as image:
 with open('data/streaks.png', 'rb') as image:
     msgImage3 = MIMEImage(image.read())
     
+with open('data/transfers.png', 'rb') as image:
+    msgImage4 = MIMEImage(image.read())
+    
     
 msgImage.add_header('Content-ID', '<standings>')
 msgImage2.add_header('Content-ID', '<topnplayers>')
 msgImage3.add_header('Content-ID', '<streaks>')
+msgImage4.add_header('Content-ID', '<transfers>')
 message.attach(msgImage)
 message.attach(msgImage2)
 message.attach(msgImage3)
+message.attach(msgImage4)
 
 # Create a secure SSL context
 context = ssl.create_default_context()

@@ -105,6 +105,48 @@ def get_data(df_name):
         return element_status_df
     
     
+def get_player_data(email_address, elements):
+    """
+    Function to pull element gameweek data for a specified list of
+    elements.
+    
+    :param email_address: The email address to authenticate
+    with the fpl website.
+    :param elements: The list of elements you wish to pull
+    data for.
+    
+    :return:
+    """
+    pwd = getpass.getpass('Enter Password: ')
+    
+    for element in elements:
+        
+        # Create a separate .json file for an element
+        json_files = [f"../data/elements/{str(element)}.json"]
+        
+        # Write the api call
+        apis = [f"https://draft.premierleague.com/api/element-summary/{str(element)}"]
+
+        # Post credentials for authentication
+        pwd = pwd
+        session = requests.session()
+        url = 'https://users.premierleague.com/accounts/login/'
+        payload = {
+         'password': pwd,
+         'login': email_address,
+         'redirect_uri': 'https://fantasy.premierleague.com/a/login',
+         'app': 'plfpl-web'
+        }
+        session.post(url, data=payload)
+
+        # Loop over the api(s), call them and capture the response(s)
+        for file, i in zip(json_files, apis):
+            r = session.get(i)
+            jsonResponse = r.json()
+            with open(file, 'w') as outfile:
+                json.dump(jsonResponse, outfile)
+    
+    
 def get_team_players_agg_data():
     
     # Pull the required dataframes
@@ -188,3 +230,28 @@ def get_num_gameweeks():
     num_gameweeks = matches_df[matches_df['finished'] == True]['event'].max()
     
     return num_gameweeks
+
+
+def get_player_gameweek_data(elements, gameweek):
+    """
+    Pull gameweek data for a given list of elements/players
+    
+    :param elements: The list of elements/players you wish to
+    obtain gameweek data for.
+    :param gameweek: The gameweek you want the data limited to
+    
+    :return: Dataframe of gameweek data for each player
+    """
+    players_dict = {}
+    
+    # For each element we want to pull
+    for element in elements:
+        
+        # Load the json data and put into players_df
+        with open(f'../data/elements/{element}.json') as json_data:
+            d = json.load(json_data)
+            players_dict[element] = json_normalize(d['history'])
+            players_df = pd.concat(players_dict, ignore_index=True)
+            players_df = players_df[players_df['event'] == 28]
+            
+    return players_df
