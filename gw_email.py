@@ -81,5 +81,5 @@ message.attach(msgImage4)
 context = ssl.create_default_context()
 
 with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-    server.login("leejghd@gmail.com", password)
+    server.login(sender_email, password)
     server.sendmail(sender_email, receiver_email, message.as_string())
