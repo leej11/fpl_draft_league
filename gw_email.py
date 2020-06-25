@@ -6,9 +6,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 
 port = 465
-password = '3l3g4nce'
-sender_email = "leejghd@gmail.com"
-receiver_email = "lee.gower17@gmail.com"
+password = ''
+sender_email = "sender@blah.com"
+receiver_email = "receiver@blah.com"
 message = """This is a test python email yippee!"""
 
 message = MIMEMultipart("alternative")
