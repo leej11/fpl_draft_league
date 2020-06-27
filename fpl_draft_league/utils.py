@@ -15,7 +15,7 @@ def get_json(
         datasets: List[str] = ['all']
 ) -> None:
     """
-    Pulls fpl draft league data using an api call, and stores the output
+    Pulls fpl draft league data, for the given league ID, and stores the output
     in a json file at the specified location.
 
     To get the FPL Draft api call, I followed advice on
