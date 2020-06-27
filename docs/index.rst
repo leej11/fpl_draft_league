@@ -5,9 +5,6 @@ Welcome to the FPL Draft League documentation. This is a hobby project I've been
 [fantasy premier league (FPL) draft game](https://draft.premierleague.com/), produce some cool insights and charts and
 share with other league members.
 
-Getting Started
------------------
-
 Repository Structure
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 A brief overview of how the repository is structured.
@@ -48,7 +45,7 @@ Guide
    :maxdepth: 2
    :caption: Contents:
 
-   source/modules
+   source/getting_started
    source/licence
    source/help
 
