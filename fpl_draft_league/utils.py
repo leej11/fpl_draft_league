@@ -3,32 +3,48 @@ import requests
 import json
 from pandas.io.json import json_normalize
 import pandas as pd
+from typing import List
+import os
 import re
 
 
-def get_json(email_address):
+def get_json(
+        email_address: str,
+        league_id: int,
+        output_location: List[str],
+        datasets: List[str] = ['all']
+) -> None:
     """
     Pulls fpl draft league data using an api call, and stores the output
     in a json file at the specified location.
+
+    To get the FPL Draft api call, I followed advice on
+    [Reddit here](https://www.reddit.com/r/FantasyPL/comments/9rclpj/python_for_fantasy_football_using_the_fpl_api/e8g6ur4?utm_source=share&utm_medium=web2x)
+    which basically said you can derive the API calls by using Chrome's developer window under network you can see the
+    "fetches" that are made, and the example response data. Very cool!
     
-    To get the FPL Draft api call, I followed advice on [Reddit here](https://www.reddit.com/r/FantasyPL/comments/9rclpj/python_for_fantasy_football_using_the_fpl_api/e8g6ur4?utm_source=share&utm_medium=web2x) which basically said you can derive the API calls by using Chrome's developer window under network you can see the "fetches" that are made, and the example response data. Very cool!
-    
-    :param file_path: The file path and name of the json file you wish to create
-    :param api: The api call for your fpl draft league
-    :param email_address: Your email address to authenticate with premierleague.com
-    :returns: 
+    :param email_address: Your email address login for premierleague.com
+    :param league_id: Your FPL draft league ID
+    :param output_location: The location you wish to output the .json file(s)
+    :param datasets: The json datasets you want to pull from draft.premierleague.com. This defaults to 'all' which
+        will pull all of the supported datasets. Alternatively you can specify a list of the specific dataset(s).
     """
-    json_files = ['../data/transactions.json',
-         '../data/elements.json',
-         '../data/details.json',
-         '../data/element_status.json'
-                 ]
-    
-    apis = ['https://draft.premierleague.com/api/draft/league/38996/transactions',
-       'https://draft.premierleague.com/api/bootstrap-static',
-       'https://draft.premierleague.com/api/league/38996/details',
-       'https://draft.premierleague.com/api/league/38996/element-status']
-    
+    available_datasets = {
+        'transactions': f'https://draft.premierleague.com/api/draft/league/{league_id}/transactions',
+        'elements': f'https://draft.premierleague.com/api/bootstrap-static',
+        'details': f'https://draft.premierleague.com/api/league/{league_id}/details',
+        'element_status': f'https://draft.premierleague.com/api/league/{league_id}/element-status'
+    }
+
+    if datasets == ['all']:
+        datasets = list(available_datasets.keys())
+        print(datasets)
+
+    # Check requested datasets are supported
+    if not set(datasets).issubset(available_datasets.keys()):
+        invalid_datasets = list(set(datasets) - set(available_datasets.keys()))
+        raise ValueError(f"Invalid dataset(s). The following datasets are not supported: \n {invalid_datasets}")
+
     # Post credentials for authentication
     pwd = getpass.getpass('Enter Password: ')
     session = requests.session()
@@ -40,14 +56,14 @@ def get_json(email_address):
      'app': 'plfpl-web'
     }
     session.post(url, data=payload)
-    
-    # Loop over the api(s), call them and capture the response(s)
-    for file, i in zip(json_files, apis):
-        r = session.get(i)
+
+    # Loop over the requested datasets, call their related API and capture the response
+    for dataset in datasets:
+        r = session.get(available_datasets[dataset])
         jsonResponse = r.json()
-        with open(file, 'w') as outfile:
+        with open(f'{output_location}/{dataset}.json', 'w') as outfile:
             json.dump(jsonResponse, outfile)
-            
+            print(f"written at {outfile}")
 
 def get_data(df_name):
     
