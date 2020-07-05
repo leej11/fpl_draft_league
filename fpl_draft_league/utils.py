@@ -11,17 +11,17 @@ import re
 def get_json(
         email_address: str,
         league_id: int,
-        output_location: List[str],
+        output_location: str,
         datasets: List[str] = ['all']
 ) -> None:
     """
     Pulls fpl draft league data, for the given league ID, and stores the output
     in a json file at the specified location.
 
-    To get the FPL Draft api call, I followed advice on
-    [Reddit here](https://www.reddit.com/r/FantasyPL/comments/9rclpj/python_for_fantasy_football_using_the_fpl_api/e8g6ur4?utm_source=share&utm_medium=web2x)
-    which basically said you can derive the API calls by using Chrome's developer window under network you can see the
-    "fetches" that are made, and the example response data. Very cool!
+    To get the FPL Draft api call, I followed advice on [Reddit here](
+    https://www.reddit.com/r/FantasyPL/comments/9rclpj/python_for_fantasy_football_using_the_fpl_api/e8g6ur4
+    ?utm_source=share&utm_medium=web2x) which basically said you can derive the API calls by using Chrome's developer
+    window under network you can see the "fetches" that are made, and the example response data. Very cool!
     
     :param email_address: Your email address login for premierleague.com
     :param league_id: Your FPL draft league ID
@@ -65,62 +65,31 @@ def get_json(
             json.dump(jsonResponse, outfile)
             print(f"written at {outfile}")
 
-def get_data(df_name):
-    
-    # Dataframes from the details.json
-    if df_name == 'league_entries':
-        with open('../data/details.json') as json_data:
-            d = json.load(json_data)
-            league_entry_df = json_normalize(d['league_entries'])
-            
-        return league_entry_df
-    
-    elif df_name == 'matches':
-        with open('../data/details.json') as json_data:
-            d = json.load(json_data)
-            matches_df = json_normalize(d['matches'])
-            
-        return matches_df
-    
-    elif df_name == 'standings':
-        with open('../data/details.json') as json_data:
-            d = json.load(json_data)
-            standings_df = json_normalize(d['standings'])
-            
-        return standings_df
-    
-    # Dataframes from the elements.json
-    elif df_name == 'elements':
-        with open('../data/elements.json') as json_data:
-            d = json.load(json_data)
-            elements_df = json_normalize(d['elements'])
-            
-        return elements_df
-    
-    elif df_name == 'element_types':
-        with open('../data/elements.json') as json_data:
-            d = json.load(json_data)
-            element_types_df = json_normalize(d['element_types'])
-            
-        return element_types_df
-    
-    # Dataframes from the transactions.json
-    elif df_name == 'transactions':
-        with open('../data/transactions.json') as json_data:
-            d = json.load(json_data)
-            transactions_df = json_normalize(d['transactions'])
-            
-        return transactions_df
-    
-    # Dataframes from the element_status.json
-    elif df_name == 'element_status':
-        with open('../data/element_status.json') as json_data:
-            d = json.load(json_data)
-            element_status_df = json_normalize(d['element_status'])
-            
-        return element_status_df
-    
-    
+def get_dataframe(dataset: str) -> pd.DataFrame:
+    """
+    This function reads in the path to a JSON file, and converts this into a
+    usable pandas DataFrame object.
+
+    :param datasets: Path to the JSON files you wish to convert to a dataframe
+    :return: Pandas DataFrame object of the JSON file supplied
+    """
+    available_dataframes = {
+        'league_entries':'details',
+        'matches':'details',
+        'standings':'details',
+        'elements':'elements',
+        'element_types':'elements',
+        'transactions':'transactions',
+        'element_status':'element_status'
+    }
+
+    with open(f'../data/{available_dataframes[dataset]}.json') as json_data:
+        d = json.load(json_data)
+        df = json_normalize(d[f"{dataset}"])
+
+    return df
+
+
 def get_player_data(email_address, elements):
     """
     Function to pull element gameweek data for a specified list of
@@ -132,12 +101,12 @@ def get_player_data(email_address, elements):
     :return:
     """
     pwd = getpass.getpass('Enter Password: ')
-    
+
     for element in elements:
-        
+
         # Create a separate .json file for an element
         json_files = [f"../data/elements/{str(element)}.json"]
-        
+
         # Write the api call
         apis = [f"https://draft.premierleague.com/api/element-summary/{str(element)}"]
 
@@ -159,10 +128,10 @@ def get_player_data(email_address, elements):
             jsonResponse = r.json()
             with open(file, 'w') as outfile:
                 json.dump(jsonResponse, outfile)
-    
-    
+
+
 def get_team_players_agg_data():
-    
+
     # Pull the required dataframes
     element_status_df = get_data('element_status')
     elements_df = get_data('elements')
@@ -170,7 +139,7 @@ def get_team_players_agg_data():
     league_entry_df = get_data('league_entries')
     matches_df = get_data('matches')
     standings_df = get_data('standings')
-    
+
     # Built the initial player -> team dataframe
     players_df = (pd.merge(element_status_df,
                            league_entry_df,
@@ -189,7 +158,7 @@ def get_team_players_agg_data():
                             'waiver_pick'])
               .rename(columns={'player_first_name':'team'})
              )
-    
+
     # Get the element details
     players_df = pd.merge(players_df, elements_df, left_on='element', right_on='id')
     players_df = players_df[['team_x',
@@ -207,7 +176,7 @@ def get_team_players_agg_data():
                              'red_cards',
                              'yellow_cards'
                             ]]
-    
+
     # Get the player types (GK, FWD etc.)
     players_df = (pd.merge(players_df,
                          element_types_df,
@@ -224,25 +193,25 @@ def get_team_players_agg_data():
 
 
 def get_team_players_gw_data():
-    
+
     df = get_team_players_agg_data()
     elements_to_pull = df['element']
     players_dict = {}
-    
+
     for element in elements_to_pull:
         with open(f'../data/elements/{element}.json') as json_data:
             d = json.load(json_data)
             players_dict[element] = json_normalize(d['history'])
             players_df = pd.concat(players_dict, ignore_index=True)
-            
+
     return players_df
 
 
 def get_num_gameweeks():
-    
-    matches_df = get_data('matches')       
+
+    matches_df = get_data('matches')
     num_gameweeks = matches_df[matches_df['finished'] == True]['event'].max()
-    
+
     return num_gameweeks
 
 
@@ -256,15 +225,15 @@ def get_player_gameweek_data(elements, gameweek):
     :return: Dataframe of gameweek data for each player
     """
     players_dict = {}
-    
+
     # For each element we want to pull
     for element in elements:
-        
+
         # Load the json data and put into players_df
         with open(f'../data/elements/{element}.json') as json_data:
             d = json.load(json_data)
             players_dict[element] = json_normalize(d['history'])
             players_df = pd.concat(players_dict, ignore_index=True)
             players_df = players_df[players_df['event'] == 28]
-            
+
     return players_df
