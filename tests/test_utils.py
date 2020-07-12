@@ -30,3 +30,11 @@ class TestGetJson:
         assert (
             "Invalid dataset(s). The following datasets are not supported:"
                ) in str(excinfo.value)
+
+class TestGetDataframe:
+
+    def test_gets_correct_data(self):
+        """
+        """
+        df = utils.get_dataframe('standings')
+

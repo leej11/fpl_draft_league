@@ -1,8 +1,10 @@
 Getting Started
 ===============
 
+.. _GS Step 1:
+
 1. Getting JSON Data
--------------------------------
+--------------------
 The first step in analysing your FPL Draft League data is to use the
 :py:func:`fpl_draft_league.utils.get_json` function.
 
@@ -19,6 +21,9 @@ The first step in analysing your FPL Draft League data is to use the
 
 Running the above (with your own values substituted), you will obtain all the
 supported .json data files in your specified output_location.
+
+..
+   TODO: Add list of the "supported" .json data files
 
 If you perhaps wanted just a specific dataset, say the transactions dataset,
 then you could make use of the optional argument `datasets`:
@@ -39,13 +44,15 @@ Very nice!
 
 2. Convert JSON to Dataframes
 -------------------------------
-In , :ref:`Step 1<1. Getting JSON Data>`, we pulled the various different
-JSON datasets from the FPL website. If you want to then analyse your data,
-you'll most likely want it in a pandas dataframe, and this is where
-:py:func:`fpl_draft_league.utils.get_dataframe` comes in.
+In, :ref:`Step 1<GS Step 1>`, we pulled the various different
+JSON datasets from the FPL website.
+
+If you want to then analyse your data, you'll most likely want it in a pandas
+dataframe, and this is where :py:func:`fpl_draft_league.utils.get_dataframe`
+comes in.
 
 Perhaps for now we want to just analyse the standings data. This is contained
- within the `details.json` file.
+within the `details.json` file.
 
 .. code-block:: python
    :linenos:
@@ -55,4 +62,3 @@ Perhaps for now we want to just analyse the standings data. This is contained
    df = utils.get_dataframe('standings')
 
    df.head()
-
